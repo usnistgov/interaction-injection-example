@@ -3,16 +3,13 @@ package gov.nist.hla.ii;
 import gov.nist.hla.ii.exception.PropertyNotAssigned;
 import gov.nist.hla.ii.exception.PropertyNotFound;
 import gov.nist.hla.ii.exception.RTIAmbassadorException;
-import hla.rti.FederateNotExecutionMember;
-import hla.rti.NameNotFound;
-import hla.rti.ObjectNotKnown;
-import hla.rti.RTIinternalError;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -45,7 +42,7 @@ public class ExampleInject implements Runnable {
 			InterObjDef interactionDef = new InterObjDef(interactionName,
 					new HashMap<String, String>(), InterObjDef.TYPE.INTERACTION);
 			intObjs.add(interactionDef);
-			federate.publishInteraction(interactionName);
+			// federate.publishInteraction(interactionName);
 
 			// Names must be formatted correctly.
 			String className = inj.formatObjectName("Obj1");
@@ -67,22 +64,31 @@ public class ExampleInject implements Runnable {
 				| IOException | PropertyNotFound | PropertyNotAssigned e) {
 			log.error(e);
 		}
-
 	}
 
 	public void run() {
 
 		double timeStep = 1D;
-		while (true) {
+		while (federate.getState() == InjectionFederate.State.TERMINATING) {
 			// In this example we run through our collection of federates.
-			// Here, we are staging each one to be sent byt the injector in the current time step.
+			// Here, we are staging each one to be sent by the injector in the
+			// current time step.
 			for (InterObjDef def : intObjs) {
 				inj.addInterObj(def);
 			}
 
 			try {
-				// We tell the injector the staging in done and to advance its time step
+				// We tell the injector the staging in done and to advance its
+				// time step
+				federate.getAdvancing().set(true);
 				timeStep = federate.advanceLogicalTime();
+				while (federate.getAdvancing().get()) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						log.error(e);
+					}
+				}
 			} catch (RTIAmbassadorException e) {
 				log.error(e);
 			}
