@@ -38,19 +38,21 @@ public class ExampleInject implements Runnable {
 			// We define all interactions and objects we intend to inject. These
 			// must match what is in the FOM file.
 			// Names must be formatted correctly.
-			String interactionName = inj.formatInteractionName("Int1");
+			String interactionName = federate.formatInteractionName("Int1");
 			InterObjDef interactionDef = new InterObjDef(interactionName,
 					new HashMap<String, String>(), InterObjDef.TYPE.INTERACTION);
 			intObjs.add(interactionDef);
+			log.debug("staged interaction=" + interactionDef);
 			// federate.publishInteraction(interactionName);
 
 			// Names must be formatted correctly.
-			String className = inj.formatObjectName("Obj1");
+			String className = federate.formatObjectName("Obj1");
 			Map<String, String> attrMap = new HashMap<String, String>();
 			attrMap.put("Obj1Attr1", "XXX");
-			InterObjDef objectDef = new InterObjDef(interactionName,
+			InterObjDef objectDef = new InterObjDef(className,
 					new HashMap<String, String>(), InterObjDef.TYPE.OBJECT);
 			intObjs.add(objectDef);
+			log.debug("staged object=" + objectDef);
 
 			// We must set an object to receive interactions and object sent by
 			// other federates.
@@ -69,10 +71,12 @@ public class ExampleInject implements Runnable {
 	public void run() {
 
 		double timeStep = 1D;
-		while (federate.getState() == InjectionFederate.State.TERMINATING) {
+		log.trace("-2");
+		while (federate.getState() != InjectionFederate.State.TERMINATING) {
 			// In this example we run through our collection of federates.
 			// Here, we are staging each one to be sent by the injector in the
 			// current time step.
+			log.trace("-1");
 			for (InterObjDef def : intObjs) {
 				inj.addInterObj(def);
 			}
@@ -80,10 +84,11 @@ public class ExampleInject implements Runnable {
 			try {
 				// We tell the injector the staging in done and to advance its
 				// time step
-				federate.getAdvancing().set(true);
+				log.trace("0");
 				timeStep = federate.advanceLogicalTime();
 				while (federate.getAdvancing().get()) {
 					try {
+						log.trace("sleeping==>");
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						log.error(e);
@@ -92,6 +97,7 @@ public class ExampleInject implements Runnable {
 			} catch (RTIAmbassadorException e) {
 				log.error(e);
 			}
+			log.trace("1");
 		}
 	}
 

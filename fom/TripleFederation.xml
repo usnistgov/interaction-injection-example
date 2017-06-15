@@ -58,16 +58,11 @@
 						<dataType>String</dataType>
 						<sharing>PublishSubscribe</sharing>
 					</attribute>
-					<attribute>
-						<name>Obj1Attr2</name>
-						<dataType>String</dataType>
-						<sharing>PublishSubscribe</sharing>
-					</attribute>
 				</objectClass>
 				<objectClass>
 					<name>Obj2</name>
 					<attribute>
-						<name>Obj1Attr1</name>
+						<name>Obj2Attr1</name>
 						<dataType>String</dataType>
 						<sharing>PublishSubscribe</sharing>
 					</attribute>
@@ -75,7 +70,7 @@
 				<objectClass>
 					<name>Obj3</name>
 					<attribute>
-						<name>Obj1Attr1</name>
+						<name>Obj3Attr1</name>
 						<dataType>String</dataType>
 						<sharing>PublishSubscribe</sharing>
 					</attribute>
