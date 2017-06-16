@@ -25,14 +25,19 @@ public class ExampleInject implements Runnable {
 
 	Set<InterObjDef> intObjs = new HashSet<InterObjDef>();
 
-	public void init(String[] args) {
+	public void init(String configPath) {
 		try {
-			// We instantiate the injection federate and configure it and
+			// We instantiate the injection federate, configure it and
 			// initialize it in that order.
 			federate = new InjectionFederate();
-			federate.loadConfiguration(args[0]);
+			federate.loadConfiguration(configPath);
 			inj = new InterObjInjectionImpl(federate);
 			federate.setInterObjectInjection(inj);
+
+			// We must set an object to receive interactions and object sent by
+			// other federates.
+			ExampleReception recp = new ExampleReception();
+			federate.setInterObjectReception(recp);
 			federate.init();
 
 			// We define all interactions and objects we intend to inject. These
@@ -43,21 +48,15 @@ public class ExampleInject implements Runnable {
 					new HashMap<String, String>(), InterObjDef.TYPE.INTERACTION);
 			intObjs.add(interactionDef);
 			log.debug("staged interaction=" + interactionDef);
-			// federate.publishInteraction(interactionName);
 
 			// Names must be formatted correctly.
 			String className = federate.formatObjectName("Obj1");
 			Map<String, String> attrMap = new HashMap<String, String>();
 			attrMap.put("Obj1Attr1", "XXX");
 			InterObjDef objectDef = new InterObjDef(className,
-					new HashMap<String, String>(), InterObjDef.TYPE.OBJECT);
+					attrMap, InterObjDef.TYPE.OBJECT);
 			intObjs.add(objectDef);
 			log.debug("staged object=" + objectDef);
-
-			// We must set an object to receive interactions and object sent by
-			// other federates.
-			ExampleReception recp = new ExampleReception();
-			federate.setInterObjectReception(recp);
 
 			// The injector must be in its own thread.
 			Thread th = new Thread(federate);
@@ -70,34 +69,27 @@ public class ExampleInject implements Runnable {
 
 	public void run() {
 
-		double timeStep = 1D;
-		log.trace("-2");
+		double timeStep = 0D;
+		log.info("timeStep=" + timeStep);
 		while (federate.getState() != InjectionFederate.State.TERMINATING) {
 			// In this example we run through our collection of federates.
 			// Here, we are staging each one to be sent by the injector in the
 			// current time step.
-			log.trace("-1");
 			for (InterObjDef def : intObjs) {
 				inj.addInterObj(def);
 			}
 
-			try {
-				// We tell the injector the staging in done and to advance its
-				// time step
-				log.trace("0");
-				timeStep = federate.advanceLogicalTime();
-				while (federate.getAdvancing().get()) {
-					try {
-						log.trace("sleeping==>");
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						log.error(e);
-					}
+			// We tell the injector the staging in done and to advance its
+			// time step
+			timeStep = federate.startLogicalTime();
+			while (federate.getAdvancing().get()) {
+				try {
+					log.trace("sleeping==>");
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					log.error(e);
 				}
-			} catch (RTIAmbassadorException e) {
-				log.error(e);
 			}
-			log.trace("1");
 		}
 	}
 
@@ -110,7 +102,7 @@ public class ExampleInject implements Runnable {
 
 		try {
 			ExampleInject app = new ExampleInject();
-			app.init(args);
+			app.init(args[0]);
 			app.run();
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
