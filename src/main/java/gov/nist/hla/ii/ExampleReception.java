@@ -9,7 +9,6 @@ public class ExampleReception extends InterObjReceptionImpl {
 	public void receiveInteraction(Double timeStep, String interactionName,
 			Map<String, String> parameters) {
 		System.out.println(String.format("time step=%s interaction name=%s parameters=%s", timeStep.toString(), interactionName, Arrays.toString(parameters.entrySet().toArray())));
-
 	}
 
 	@Override
