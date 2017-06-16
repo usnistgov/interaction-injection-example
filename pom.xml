@@ -12,13 +12,6 @@
 		<c2w.version>0.3.0-SNAPSHOT</c2w.version>
 		<nar.version>3.3.0</nar.version>
 	</properties>
-	<dependencies>
-		<dependency>
-			<groupId>gov.nist.hla</groupId>
-			<artifactId>interaction-injection</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
@@ -35,7 +28,7 @@
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>gov.nist.hla.ii.ExampleInject</mainClass>
+									<mainClass>gov.nist.hla.ii.ExampleMain</mainClass>
 								</transformer>
 							</transformers>
 							<filters>
@@ -142,4 +135,11 @@
 			</build>
 		</profile>
 	</profiles>
+	<dependencies>
+		<dependency>
+			<groupId>gov.nist.hla</groupId>
+			<artifactId>interaction-injection</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 </project>
