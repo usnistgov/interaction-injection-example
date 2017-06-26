@@ -22,17 +22,25 @@ public class ExampleInject extends InterObjInjectionImpl {
 		super();
 		this.federate = federate;
 	}
+	
+	@Override
+	public Queue<InterObjDef> getPreSynchInteractions() {
+		String interactionName = federate.formatInteractionName("ExperimentInit");
+		Map<String, String> parameters = new HashMap<String, String>();
+		// parameters.put("name", "value");
+		addInteraction(interactionName, parameters);
+	}
 
 	@Override
 	public Queue<InterObjDef> getPublications(Double logicalTime) {
 		log.trace("getInteractions==>");
+
 		try {
 			// We define all interactions and objects we intend to inject. These
 			// must match what is in the FOM file.
 			// Names must be formatted correctly.
 			String interactionName = federate.formatInteractionName("Int1");
-			addInteraction(interactionName,
-					new HashMap<String, String>());
+			addInteraction(interactionName, new HashMap<String, String>());
 
 			// Names must be formatted correctly.
 			String className = federate.formatObjectName("Obj1");
@@ -40,8 +48,7 @@ public class ExampleInject extends InterObjInjectionImpl {
 			attrMap.put("Obj1Attr1", "XXX");
 			addObject(className, attrMap);
 
-		} catch (NameNotFound | FederateNotExecutionMember | RTIinternalError
-				| ObjectNotKnown e) {
+		} catch (NameNotFound | FederateNotExecutionMember | RTIinternalError | ObjectNotKnown e) {
 			log.error(e);
 		}
 		return publications;
